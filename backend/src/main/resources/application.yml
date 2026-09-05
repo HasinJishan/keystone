@@ -1,0 +1,51 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: keystone
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/keystone}
+    username: ${DB_USERNAME:keystone}
+    password: ${DB_PASSWORD:keystone}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:this-is-a-very-long-development-only-secret-key-change-me-1234567890}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173}
+  sla:
+    critical-hours: 4
+    high-hours: 8
+    medium-hours: 24
+    low-hours: 72
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    com.zidio.keystone: INFO
