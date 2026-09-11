@@ -7,7 +7,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "work_orders")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class WorkOrder {
 
     @Id

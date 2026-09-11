@@ -7,7 +7,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "time_logs")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class TimeLog {
 
     @Id
