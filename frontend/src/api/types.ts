@@ -1,4 +1,4 @@
-export type Role = 'DISPATCHER' | 'TECHNICIAN' | 'MANAGER' | 'CUSTOMER';
+export type Role = 'ADMIN' | 'DISPATCHER' | 'TECHNICIAN' | 'MANAGER' | 'CUSTOMER';
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type WorkOrderStatus =
   | 'NEW' | 'ASSIGNED' | 'IN_PROGRESS' | 'ON_HOLD' | 'COMPLETED' | 'CLOSED' | 'CANCELLED';

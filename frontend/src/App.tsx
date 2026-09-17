@@ -9,6 +9,7 @@ import MyJobs from './pages/MyJobs';
 import CustomerPortal from './pages/CustomerPortal';
 import Customers from './pages/Customers';
 import Parts from './pages/Parts';
+import UserManagement from './pages/UserManagement';
 import type { Role } from './api/types';
 
 function RequireAuth({ children, allow }: { children: JSX.Element; allow?: Role[] }) {
@@ -22,7 +23,7 @@ function RoleHome() {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   const home: Record<Role, string> = {
-    DISPATCHER: '/board', MANAGER: '/dashboard', TECHNICIAN: '/my-jobs', CUSTOMER: '/portal',
+    ADMIN: '/dashboard', DISPATCHER: '/board', MANAGER: '/dashboard', TECHNICIAN: '/my-jobs', CUSTOMER: '/portal',
   };
   return <Navigate to={home[user.role]} replace />;
 }
@@ -35,13 +36,14 @@ export default function App() {
 
         <Route element={<RequireAuth><Layout /></RequireAuth>}>
           <Route path="/" element={<RoleHome />} />
-          <Route path="/dashboard" element={<RequireAuth allow={['MANAGER']}><Dashboard /></RequireAuth>} />
-          <Route path="/board" element={<RequireAuth allow={['DISPATCHER', 'MANAGER']}><WorkOrderBoard /></RequireAuth>} />
+          <Route path="/dashboard" element={<RequireAuth allow={['MANAGER', 'ADMIN']}><Dashboard /></RequireAuth>} />
+          <Route path="/board" element={<RequireAuth allow={['DISPATCHER', 'MANAGER', 'ADMIN']}><WorkOrderBoard /></RequireAuth>} />
           <Route path="/work-orders/:id" element={<WorkOrderDetail />} />
           <Route path="/my-jobs" element={<RequireAuth allow={['TECHNICIAN']}><MyJobs /></RequireAuth>} />
           <Route path="/portal" element={<RequireAuth allow={['CUSTOMER']}><CustomerPortal /></RequireAuth>} />
-          <Route path="/customers" element={<RequireAuth allow={['DISPATCHER', 'MANAGER']}><Customers /></RequireAuth>} />
-          <Route path="/parts" element={<RequireAuth allow={['DISPATCHER', 'MANAGER']}><Parts /></RequireAuth>} />
+          <Route path="/customers" element={<RequireAuth allow={['DISPATCHER', 'MANAGER', 'ADMIN']}><Customers /></RequireAuth>} />
+          <Route path="/parts" element={<RequireAuth allow={['DISPATCHER', 'MANAGER', 'ADMIN']}><Parts /></RequireAuth>} />
+          <Route path="/users" element={<RequireAuth allow={['ADMIN']}><UserManagement /></RequireAuth>} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

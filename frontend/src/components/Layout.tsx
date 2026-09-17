@@ -2,6 +2,13 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
 const NAV_BY_ROLE: Record<string, { to: string; label: string }[]> = {
+  ADMIN: [
+    { to: '/dashboard', label: 'Dashboard' },
+    { to: '/board', label: 'Work Order Board' },
+    { to: '/customers', label: 'Customers & Sites' },
+    { to: '/parts', label: 'Parts' },
+    { to: '/users', label: 'User Management' },
+  ],
   DISPATCHER: [
     { to: '/board', label: 'Work Order Board' },
     { to: '/customers', label: 'Customers & Sites' },
