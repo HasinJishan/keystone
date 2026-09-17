@@ -26,9 +26,15 @@ public class SiteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('DISPATCHER','MANAGER')")
+    @PreAuthorize("hasAnyRole('DISPATCHER','MANAGER','ADMIN')")
     public SiteDto create(@PathVariable Long customerId, @Valid @RequestBody SiteDto dto) {
         SiteDto withCustomer = new SiteDto(dto.id(), customerId, dto.name(), dto.address());
         return siteService.create(withCustomer);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
+    public SiteDto update(@PathVariable Long customerId, @PathVariable Long id, @Valid @RequestBody SiteDto dto) {
+        return siteService.update(id, dto);
     }
 }

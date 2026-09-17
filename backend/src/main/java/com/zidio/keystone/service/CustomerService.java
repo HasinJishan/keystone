@@ -50,6 +50,14 @@ public class CustomerService {
         return page.map(this::toDto);
     }
 
+    @Transactional
+    public void delete(Long id) {
+        if (!customerRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Customer not found: " + id);
+        }
+        customerRepository.deleteById(id);
+    }
+
     private CustomerDto toDto(Customer c) {
         return new CustomerDto(c.getId(), c.getName(), c.getContactEmail(), c.getContactPhone());
     }

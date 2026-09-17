@@ -16,7 +16,7 @@ public class ReportController {
     private final ReportingService reportingService;
 
     @GetMapping("/summary")
-    @PreAuthorize("hasAnyRole('MANAGER','DISPATCHER')")
+    @PreAuthorize("hasAnyRole('MANAGER','DISPATCHER','ADMIN')")
     public DashboardSummary summary() {
         return reportingService.summary();
     }

@@ -36,6 +36,15 @@ public class SiteService {
         return siteRepository.findByCustomerId(customerId).stream().map(this::toDto).toList();
     }
 
+    @Transactional
+    public SiteDto update(Long id, SiteDto dto) {
+        Site site = siteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Site not found: " + id));
+        site.setName(dto.name());
+        site.setAddress(dto.address());
+        return toDto(site);
+    }
+
     private SiteDto toDto(Site s) {
         return new SiteDto(s.getId(), s.getCustomerId(), s.getName(), s.getAddress());
     }

@@ -1,5 +1,8 @@
 package com.zidio.keystone.security;
 
+import com.zidio.keystone.domain.Permission;
+import com.zidio.keystone.domain.Role;
+import com.zidio.keystone.exception.ForbiddenOperationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -20,4 +23,13 @@ public class CurrentUser {
     public String role() { return get().getRole(); }
 
     public Long customerId() { return get().getCustomerId(); }
+
+    /** Checks the caller's role against the RolePermissions map, throwing 403 if not allowed. */
+    public void requirePermission(Permission permission) {
+        Role role = Role.valueOf(role());
+        if (!RolePermissions.hasPermission(role, permission)) {
+            throw new ForbiddenOperationException(
+                    "Role " + role + " does not have permission " + permission);
+        }
+    }
 }

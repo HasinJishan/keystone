@@ -147,7 +147,7 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrderResponse assign(Long id, AssignRequest req) {
-        requireRole("DISPATCHER", "MANAGER");
+        requireRole("DISPATCHER", "MANAGER", "ADMIN");
         WorkOrder wo = workOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Work order not found: " + id));
 
@@ -202,22 +202,22 @@ public class WorkOrderService {
 
         switch (target) {
             case IN_PROGRESS, ON_HOLD -> {
-                if (!(isAssignedTechnician || "MANAGER".equals(role))) {
+                if (!(isAssignedTechnician || "MANAGER".equals(role) || "ADMIN".equals(role))) {
                     throw new ForbiddenOperationException("Only the assigned technician can update this job's progress");
                 }
             }
             case COMPLETED -> {
-                if (!(isAssignedTechnician || "MANAGER".equals(role))) {
+                if (!(isAssignedTechnician || "MANAGER".equals(role) || "ADMIN".equals(role))) {
                     throw new ForbiddenOperationException("Only the assigned technician can complete this job");
                 }
             }
             case CLOSED -> {
-                if (!"MANAGER".equals(role)) {
+                if (!("MANAGER".equals(role) || "ADMIN".equals(role))) {
                     throw new ForbiddenOperationException("Only a manager can close a work order");
                 }
             }
             case CANCELLED -> {
-                if (!("DISPATCHER".equals(role) || "MANAGER".equals(role))) {
+                if (!("DISPATCHER".equals(role) || "MANAGER".equals(role) || "ADMIN".equals(role))) {
                     throw new ForbiddenOperationException("Only a dispatcher or manager can cancel a work order");
                 }
             }
@@ -291,7 +291,7 @@ public class WorkOrderService {
         String role = currentUser.role();
         boolean isAssignedTechnician = "TECHNICIAN".equals(role)
                 && wo.getAssignedTo() != null && wo.getAssignedTo().equals(currentUser.id());
-        if (!(isAssignedTechnician || "MANAGER".equals(role) || "DISPATCHER".equals(role))) {
+        if (!(isAssignedTechnician || "MANAGER".equals(role) || "DISPATCHER".equals(role) || "ADMIN".equals(role))) {
             throw new ForbiddenOperationException("Only the assigned technician can log parts/time on this job");
         }
     }
@@ -301,6 +301,24 @@ public class WorkOrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Work order not found: " + id));
         assertReadAccess(wo);
         return wo;
+    }
+
+    /**
+     * Hard delete, per the mentor's Admin permission list. This is deliberately kept
+     * separate from Cancel: Cancel preserves the work order and its audit history
+     * (the safe, everyday action available to dispatchers/managers), while this
+     * permanently removes the row and its history/parts/time records - restricted to
+     * ADMIN only, and meant for genuine data cleanup, not day-to-day workflow.
+     */
+    @Transactional
+    public void hardDelete(Long id) {
+        if (!workOrderRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Work order not found: " + id);
+        }
+        timeLogRepository.deleteAll(timeLogRepository.findByWorkOrderId(id));
+        partUsageRepository.deleteAll(partUsageRepository.findByWorkOrderId(id));
+        historyRepository.deleteAll(historyRepository.findByWorkOrderIdOrderByChangedAtAsc(id));
+        workOrderRepository.deleteById(id);
     }
 
     private void requireRole(String... roles) {

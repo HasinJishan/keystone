@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -67,5 +68,12 @@ public class WorkOrderController {
     @PostMapping("/{id}/time")
     public WorkOrderResponse logTime(@PathVariable Long id, @Valid @RequestBody TimeLogRequest req) {
         return workOrderService.logTime(id, req);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
+    public void delete(@PathVariable Long id) {
+        workOrderService.hardDelete(id);
     }
 }

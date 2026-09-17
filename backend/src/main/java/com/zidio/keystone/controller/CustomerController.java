@@ -20,27 +20,34 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('DISPATCHER','MANAGER')")
+    @PreAuthorize("hasAnyRole('DISPATCHER','MANAGER','ADMIN')")
     public Page<CustomerDto> search(@RequestParam(required = false) String q, Pageable pageable) {
         return customerService.search(q, pageable);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DISPATCHER','MANAGER')")
+    @PreAuthorize("hasAnyRole('DISPATCHER','MANAGER','ADMIN')")
     public CustomerDto get(@PathVariable Long id) {
         return customerService.get(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('DISPATCHER','MANAGER')")
+    @PreAuthorize("hasAnyRole('DISPATCHER','MANAGER','ADMIN')")
     public CustomerDto create(@Valid @RequestBody CustomerDto dto) {
         return customerService.create(dto);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DISPATCHER','MANAGER')")
+    @PreAuthorize("hasAnyRole('DISPATCHER','MANAGER','ADMIN')")
     public CustomerDto update(@PathVariable Long id, @Valid @RequestBody CustomerDto dto) {
         return customerService.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
+    public void delete(@PathVariable Long id) {
+        customerService.delete(id);
     }
 }

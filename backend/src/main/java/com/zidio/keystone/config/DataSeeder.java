@@ -62,6 +62,10 @@ public class DataSeeder implements CommandLineRunner {
 
         String pw = passwordEncoder.encode("Passw0rd!");
 
+        userRepository.save(User.builder()
+                .name("Alex Admin").email("admin@keystone.dev")
+                .passwordHash(pw).role(Role.ADMIN).active(true).build());
+
         User dispatcher = userRepository.save(User.builder()
                 .name("Dana Dispatcher").email("dispatcher@keystone.dev")
                 .passwordHash(pw).role(Role.DISPATCHER).active(true).build());
@@ -126,6 +130,6 @@ public class DataSeeder implements CommandLineRunner {
                 .workOrderId(wo3.getId()).fromStatus(WorkOrderStatus.ASSIGNED).toStatus(WorkOrderStatus.IN_PROGRESS)
                 .changedBy(technician.getId()).note("Started work").build());
 
-        log.info("Seed data created: 2 customers, 3 sites, 4 users, 4 parts, 3 work orders.");
+        log.info("Seed data created: 2 customers, 3 sites, 5 users, 4 parts, 3 work orders.");
     }
 }

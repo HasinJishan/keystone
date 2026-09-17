@@ -26,8 +26,21 @@ public class PartController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public PartDto create(@Valid @RequestBody PartDto dto) {
         return partService.create(dto);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public PartDto update(@PathVariable Long id, @Valid @RequestBody PartDto dto) {
+        return partService.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
+    public void delete(@PathVariable Long id) {
+        partService.delete(id);
     }
 }
