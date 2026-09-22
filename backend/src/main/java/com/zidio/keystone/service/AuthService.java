@@ -26,7 +26,7 @@ public class AuthService {
             throw new BadCredentialsException("Invalid email or password");
         }
 
-        String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getRole().name());
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getName(), user.getRole().name());
 
         return new LoginResponse(token, user.getId(), user.getName(), user.getEmail(),
                 user.getRole().name(), user.getCustomerId());
