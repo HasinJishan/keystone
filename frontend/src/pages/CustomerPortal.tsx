@@ -10,6 +10,7 @@ export default function CustomerPortal() {
   const [orders, setOrders] = useState<WorkOrderResponse[]>([]);
   const [sites, setSites] = useState<SiteDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
 
   const [title, setTitle] = useState('');
@@ -21,9 +22,15 @@ export default function CustomerPortal() {
 
   async function load() {
     setLoading(true);
-    const page = await api.get<Page<WorkOrderResponse>>('/api/work-orders?size=100');
-    setOrders(page.content);
-    setLoading(false);
+    setLoadError(null);
+    try {
+      const page = await api.get<Page<WorkOrderResponse>>('/api/work-orders?size=100');
+      setOrders(page.content);
+    } catch (err) {
+      setLoadError(err instanceof ApiError ? err.message : 'Could not load your requests. The server may be waking up - try refreshing in a moment.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -101,9 +108,19 @@ export default function CustomerPortal() {
       )}
 
       <div className="panel">
-        <div className="panel-header">Your Requests</div>
+        <div className="panel-header">
+          <span>Your Requests</span>
+          {!loading && <button className="btn btn-sm" onClick={load}>Refresh</button>}
+        </div>
         {loading ? (
           <div className="empty-state">Loading…</div>
+        ) : loadError ? (
+          <div className="form-error" style={{ margin: 16 }}>
+            {loadError}
+            <div style={{ marginTop: 8 }}>
+              <button className="btn btn-sm" onClick={load}>Try again</button>
+            </div>
+          </div>
         ) : orders.length === 0 ? (
           <div className="empty-state">You haven't raised any requests yet.</div>
         ) : (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, ApiError } from '../api/client';
 import type { Page, WorkOrderResponse, WorkOrderStatus } from '../api/types';
 import { PriorityBadge, SlaBadge } from '../components/Badges';
 import NewWorkOrderModal from '../components/NewWorkOrderModal';
@@ -16,14 +16,18 @@ const COLUMNS: { status: WorkOrderStatus; label: string }[] = [
 export default function WorkOrderBoard() {
   const [orders, setOrders] = useState<WorkOrderResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
 
   async function load() {
     setLoading(true);
+    setLoadError(null);
     try {
       const page = await api.get<Page<WorkOrderResponse>>(`/api/work-orders?size=100${search ? `&q=${encodeURIComponent(search)}` : ''}`);
       setOrders(page.content);
+    } catch (err) {
+      setLoadError(err instanceof ApiError ? err.message : 'Could not load work orders. The server may be waking up - try again in a moment.');
     } finally {
       setLoading(false);
     }
@@ -51,6 +55,13 @@ export default function WorkOrderBoard() {
 
       {loading ? (
         <div className="empty-state">Loading work orders…</div>
+      ) : loadError ? (
+        <div className="form-error">
+          {loadError}
+          <div style={{ marginTop: 8 }}>
+            <button className="btn btn-sm" onClick={load}>Try again</button>
+          </div>
+        </div>
       ) : (
         <div className="board">
           {COLUMNS.map((col) => {
