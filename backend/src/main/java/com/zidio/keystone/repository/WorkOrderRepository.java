@@ -22,13 +22,21 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
 
     Page<WorkOrder> findByAssignedTo(Long technicianId, Pageable pageable);
 
+    /**
+     * The :q parameter is explicitly cast to string. Without this, PostgreSQL cannot
+     * infer the type of a null parameter used inside concat()/lower() and defaults to
+     * bytea, throwing "function lower(bytea) does not exist" - this only shows up
+     * when no search term is typed (:q is null), which is exactly the normal case of
+     * just opening the board or portal. The cast fixes it for both the null case and
+     * the real-search case.
+     */
     @Query("""
            select w from WorkOrder w
            where (:status is null or w.status = :status)
              and (:customerId is null or w.customerId = :customerId)
              and (:assignedTo is null or w.assignedTo = :assignedTo)
-             and (:q is null or lower(w.title) like lower(concat('%', :q, '%'))
-                            or lower(w.code) like lower(concat('%', :q, '%')))
+             and (:q is null or lower(w.title) like lower(concat('%', cast(:q as string), '%'))
+                            or lower(w.code) like lower(concat('%', cast(:q as string), '%')))
            """)
     Page<WorkOrder> search(@Param("status") WorkOrderStatus status,
                             @Param("customerId") Long customerId,
