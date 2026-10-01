@@ -76,6 +76,7 @@ keystone/
 | Forgot password | Generates a random, single-use token that expires in 30 minutes and emails a reset link. The response is identical whether or not the email exists (no account probing). |
 | Reset password | Validates the token and expiry, sets the new password, then clears the token. |
 | Logout | `POST /api/auth/logout` adds the token to an in-memory blocklist (`TokenKillService`, a `ConcurrentHashMap`-backed set). `JwtAuthFilter` rejects any blocklisted token with **401**, even before it expires. The blocklist is cleared when the server restarts. |
+| Change password | For a logged-in user who knows their current password. `POST /api/auth/change-password` checks the current password matches, then saves the new one (BCrypt-hashed). Requires a valid token — unlike forgot/reset, this is not public. |
 | Roles | `ADMIN`, `MANAGER`, `DISPATCHER`, `TECHNICIAN`, `CUSTOMER`. Roles are enforced on the server with Spring Security method-level authorisation. |
 
 ### Auth endpoints
@@ -87,6 +88,7 @@ keystone/
 | POST | `/api/auth/forgot-password` | Email a reset link |
 | POST | `/api/auth/reset-password` | Set a new password with the token |
 | POST | `/api/auth/logout` | Kill the current token |
+| POST | `/api/auth/change-password` | Change password (requires login) |
 
 All other endpoints require `Authorization: Bearer <token>`. Full reference: Swagger UI.
 
