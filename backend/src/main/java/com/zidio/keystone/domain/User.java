@@ -31,6 +31,17 @@ public class User {
     @Column(name = "customer_id")
     private Long customerId;
 
+    /**
+     * Password reset support. resetToken is a single-use random value handed out by
+     * /api/auth/forgot-password and consumed by /api/auth/reset-password; both fields
+     * are cleared the moment a reset succeeds so the link can't be replayed.
+     */
+    @Column(name = "reset_token", unique = true, length = 100)
+    private String resetToken;
+
+    @Column(name = "reset_token_expires_at")
+    private Instant resetTokenExpiresAt;
+
     @Builder.Default
     private boolean active = true;
 

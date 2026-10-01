@@ -12,6 +12,10 @@ export interface LoginResponse {
   customerId: number | null;
 }
 
+export interface MessageResponse {
+  message: string;
+}
+
 export interface CustomerDto {
   id: number;
   name: string;

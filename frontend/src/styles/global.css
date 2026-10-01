@@ -242,6 +242,11 @@ a { color: inherit; }
   font-size: 13px;
   margin-bottom: 14px;
 }
+.field-error {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 4px;
+}
 
 /* ---- Badges ---- */
 

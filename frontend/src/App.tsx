@@ -2,6 +2,9 @@ import { Navigate, Route, BrowserRouter, Routes } from 'react-router-dom';
 import { useAuth } from './auth/AuthContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import WorkOrderBoard from './pages/WorkOrderBoard';
 import WorkOrderDetail from './pages/WorkOrderDetail';
@@ -33,6 +36,9 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route element={<RequireAuth><Layout /></RequireAuth>}>
           <Route path="/" element={<RoleHome />} />

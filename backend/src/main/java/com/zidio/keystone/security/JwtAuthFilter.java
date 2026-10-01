@@ -25,6 +25,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final TokenKillService tokenKillService;
     private final org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
 
     @Override
@@ -39,6 +40,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = header.substring(7);
+
+        // Logged-out token: reject immediately even though it has not expired yet.
+        if (tokenKillService.isBlocked(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write(
+                    "{\"status\":401,\"message\":\"Token has been logged out. Please sign in again.\",\"fieldErrors\":[]}");
+            return;
+        }
 
         if (jwtService.isValid(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
             String email = jwtService.extractEmail(token);

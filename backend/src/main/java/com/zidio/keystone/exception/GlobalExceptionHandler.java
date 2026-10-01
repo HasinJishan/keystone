@@ -66,6 +66,14 @@ public class GlobalExceptionHandler {
                 .body(new ApiError(Instant.now(), 400, ex.getMessage(), List.of()));
     }
 
+    /** DB rules (foreign keys, unique, CHECK) now protect the data - report them as 409, not 500. */
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataIntegrity(org.springframework.dao.DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError(Instant.now(), 409,
+                        "This action conflicts with existing data (it may be in use elsewhere or already exist)", List.of()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
         log.error("Unexpected error handling request", ex);

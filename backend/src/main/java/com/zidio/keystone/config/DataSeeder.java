@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,11 +15,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 /**
- * Seeds sample data on first startup, the same way taught in training: since we use
- * ddl-auto=update (Hibernate creates/updates tables from the entities) instead of Flyway,
- * there is no SQL migration step to carry seed data - so we insert it here in code,
- * through the repositories, exactly once. If users already exist, this does nothing,
- * so it's safe to leave running on every startup.
+ * Seeds demo data on first startup (the schema itself comes from Flyway migrations).
+ * Passwords are BCrypt-hashed in code, so seed users are inserted here rather than in SQL.
+ * Runs only if no users exist, so it is safe on every startup.
  */
 @Component
 @RequiredArgsConstructor
@@ -33,9 +32,21 @@ public class DataSeeder implements CommandLineRunner {
     private final WorkOrderStatusHistoryRepository historyRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // Seed accounts are for reviewers/demo. In real use set SEED_PASSWORD to a private
+    // value, or SEED_ENABLED=false to create no demo accounts at all.
+    @Value("${app.seed.enabled:true}")
+    private boolean seedEnabled;
+
+    @Value("${app.seed.password:Passw0rd!}")
+    private String seedPassword;
+
     @Override
     @Transactional
     public void run(String... args) {
+        if (!seedEnabled) {
+            log.info("Seeding disabled (app.seed.enabled=false) - skipping.");
+            return;
+        }
         if (userRepository.count() > 0) {
             log.info("Seed data already present - skipping.");
             return;
@@ -60,7 +71,7 @@ public class DataSeeder implements CommandLineRunner {
         Site warehouse1 = siteRepository.save(Site.builder()
                 .customerId(blueHarbor.getId()).name("Blue Harbor Warehouse 1").address("9 Port Street, Chennai").build());
 
-        String pw = passwordEncoder.encode("Passw0rd!");
+        String pw = passwordEncoder.encode(seedPassword);
 
         userRepository.save(User.builder()
                 .name("Alex Admin").email("admin@keystone.dev")

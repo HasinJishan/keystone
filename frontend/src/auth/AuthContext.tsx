@@ -13,6 +13,7 @@ interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, companyName: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -40,13 +41,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(authUser);
   }
 
+  // Registration only creates the account - it does NOT sign the user in.
+  // The user is sent to the login page and signs in with the new credentials.
+  async function register(name: string, email: string, password: string, companyName: string) {
+    await api.post('/api/auth/register', { name, email, password, companyName });
+  }
+
+  // Tell the server to kill the token first (it reads the token from localStorage
+  // synchronously when the request starts), then clear the browser session no matter what.
   function logout() {
+    api.post('/api/auth/logout').catch(() => { /* server unreachable: still log out locally */ });
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(STORAGE_KEY);
     setUser(null);
   }
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, login, register, logout }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
