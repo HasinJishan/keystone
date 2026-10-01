@@ -76,7 +76,6 @@ keystone/
 | Forgot password | Generates a random, single-use token that expires in 30 minutes and emails a reset link. The response is identical whether or not the email exists (no account probing). |
 | Reset password | Validates the token and expiry, sets the new password, then clears the token. |
 | Logout | `POST /api/auth/logout` adds the token to an in-memory blocklist (`TokenKillService`, a `ConcurrentHashMap`-backed set). `JwtAuthFilter` rejects any blocklisted token with **401**, even before it expires. The blocklist is cleared when the server restarts. |
-| Change password | For a logged-in user who knows their current password. `POST /api/auth/change-password` checks the current password matches, then saves the new one (BCrypt-hashed). Requires a valid token — unlike forgot/reset, this is not public. |
 | Roles | `ADMIN`, `MANAGER`, `DISPATCHER`, `TECHNICIAN`, `CUSTOMER`. Roles are enforced on the server with Spring Security method-level authorisation. |
 
 ### Auth endpoints
@@ -88,7 +87,6 @@ keystone/
 | POST | `/api/auth/forgot-password` | Email a reset link |
 | POST | `/api/auth/reset-password` | Set a new password with the token |
 | POST | `/api/auth/logout` | Kill the current token |
-| POST | `/api/auth/change-password` | Change password (requires login) |
 
 All other endpoints require `Authorization: Bearer <token>`. Full reference: Swagger UI.
 
@@ -129,13 +127,19 @@ No secrets are committed. Values come from the environment; the defaults below a
 | `MAIL_HOST`, `MAIL_PORT` | SMTP server (Gmail: `smtp.gmail.com`, `587`) | `localhost`, `1025` |
 | `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP login (use a **dummy project mailbox** and an app password, never a personal account) | empty |
 | `MAIL_SMTP_AUTH`, `MAIL_SMTP_STARTTLS` | Set both to `true` for Gmail | `false` |
-| `MAIL_FROM` | Sender address | `noreply@keystone.dev` |
+| `BREVO_API_KEY` | If set, reset emails are sent over **HTTPS via the Brevo API** instead of SMTP (needed on Render's free tier, which blocks SMTP ports) | empty |
+| `MAIL_FROM` | Sender address (with Brevo it must be a verified sender) | `noreply@keystone.dev` |
 | `FRONTEND_URL` | Base URL used in reset-password links | `http://localhost:5173` |
 | `ALLOWED_ORIGINS` | CORS: allowed front-end origin(s) | `http://localhost:5173` |
 | `SEED_ENABLED` | Create demo accounts on first start | `true` |
 | `SEED_PASSWORD` | Password for the demo accounts | `Passw0rd!` |
 
 Front end: `VITE_API_URL` = base URL of the API (see `frontend/.env.example`).
+
+### Email on the live site
+Render's free tier blocks outbound SMTP (ports 25/465/587), so the deployed API sends reset emails through the
+Brevo HTTPS API: set `BREVO_API_KEY` and set `MAIL_FROM` to a sender verified in Brevo. Locally, SMTP (MailHog or a
+Gmail app password) still works when `BREVO_API_KEY` is empty.
 
 ### Testing the reset email locally
 Locally there is no mail server by default, so the email is not delivered (the app still returns its normal message).

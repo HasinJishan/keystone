@@ -47,11 +47,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // stateless JWT API, no cookies/CSRF risk
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                    // Named one by one, not a "/api/auth/**" wildcard: change-password and logout
-                    // both live under /api/auth too, but they need to know WHO is calling, so they
-                    // must require a token like everything else. A wildcard here would let them
-                    // through with no token at all, where CurrentUser.get() would then throw
-                    // (IllegalStateException -> 500) instead of Spring Security cleanly returning 401.
+                    // Public endpoints are named one by one instead of a "/api/auth/**" wildcard.
+                    // Logout must require a token so the server knows which token to kill.
                     .requestMatchers("/api/auth/login", "/api/auth/register",
                             "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()

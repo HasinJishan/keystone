@@ -35,6 +35,10 @@ spring:
           auth: ${MAIL_SMTP_AUTH:false}
           starttls:
             enable: ${MAIL_SMTP_STARTTLS:false}
+          # fail fast instead of hanging if the SMTP server is unreachable
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 app:
   seed:
@@ -43,6 +47,8 @@ app:
   mail:
     # The dummy/project-only mailbox this app sends from - never your personal email.
     from: ${MAIL_FROM:noreply@keystone.dev}
+    # If set, emails go over HTTPS (Brevo API) instead of SMTP - required on hosts that block SMTP ports (Render free tier).
+    brevo-api-key: ${BREVO_API_KEY:}
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
   jwt:
     secret: ${JWT_SECRET:this-is-a-very-long-development-only-secret-key-change-me-1234567890}
