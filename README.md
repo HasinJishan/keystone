@@ -176,7 +176,10 @@ cd backend
 mvn test
 ```
 
-Current tests cover the token blocklist used by logout. Lifecycle-transition and authorisation tests are planned next.
+Tests run against an in-memory H2 database (profile `test`) and cover:
+login (valid and wrong password), missing and tampered tokens, logout (a logged-out token returns 401),
+a customer being blocked from another customer's work order, a technician being blocked from closing a job,
+a customer being blocked from deleting, and an illegal lifecycle jump (NEW to COMPLETED) returning 409.
 
 ## Deployment
 
