@@ -57,7 +57,9 @@ export default function WorkOrderDetail() {
   if (error && !wo) return <div className="form-error">{error}</div>;
   if (!wo) return <div className="empty-state">Loading…</div>;
 
-  const canManageLifecycle = user?.role === 'MANAGER' || user?.role === 'DISPATCHER' ||
+  // Admin and Manager can do everything a dispatcher can, plus close/cancel (matches the server rules).
+  const isStaff = user?.role === 'ADMIN' || user?.role === 'MANAGER';
+  const canManageLifecycle = isStaff || user?.role === 'DISPATCHER' ||
     (user?.role === 'TECHNICIAN' && wo.assignedTo === user.userId);
 
   return (
@@ -86,7 +88,7 @@ export default function WorkOrderDetail() {
         </div>
       </div>
 
-      {(user?.role === 'DISPATCHER' || user?.role === 'MANAGER') && !wo.status.match(/CLOSED|CANCELLED/) && (
+      {(user?.role === 'DISPATCHER' || isStaff) && !wo.status.match(/CLOSED|CANCELLED/) && (
         <AssignPanel workOrderId={wo.id} currentAssignee={wo.assignedToName} onAssigned={load} />
       )}
 
@@ -103,7 +105,7 @@ export default function WorkOrderDetail() {
         </div>
       )}
 
-      {user?.role === 'MANAGER' && wo.status === 'NEW' && (
+      {isStaff && wo.status === 'NEW' && (
         <div className="panel">
           <div className="panel-header">Cancel</div>
           <div className="panel-body">
@@ -112,7 +114,7 @@ export default function WorkOrderDetail() {
         </div>
       )}
 
-      {(user?.role === 'TECHNICIAN' || user?.role === 'MANAGER') && !wo.status.match(/CLOSED|CANCELLED|NEW/) && (
+      {(user?.role === 'TECHNICIAN' || isStaff) && !wo.status.match(/CLOSED|CANCELLED|NEW/) && (
         <PartsTimePanel workOrderId={wo.id} onLogged={load} />
       )}
 
