@@ -10,7 +10,7 @@ Built for the Zidio Development Java Full-Stack Engineering Project (Project KEY
 
 | | Link |
 |---|---|
-| Frontend | https://YOUR-VERCEL-LINK.vercel.app |
+| Frontend | https://keystone-theta-six.vercel.app |
 | API | https://keystone-nbv7.onrender.com |
 | Swagger UI | https://keystone-nbv7.onrender.com/swagger-ui.html |
 | Demo video | _add unlisted link_ |
